@@ -7,7 +7,7 @@ class Gdip
 		VarSetCapacity(si, (A_PtrSize = 8) ? 24 : 16, 0), si := Chr(1)
 		DllCall("gdiplus\GdiplusStartup", "uptr*", pToken, "uptr", &si, "uint", 0)
 		this.pToken := pToken
-		
+
 		this._New := Gdip.__New
 		Gdip.__New := Gdip._DummyNew
 	}
@@ -55,6 +55,8 @@ class Gdip
 	#Include Brush.ahk
 	
 	#Include Pen.ahk
+	
+	#Include Window.ahk
 	
 	#Include Point.ahk
 	

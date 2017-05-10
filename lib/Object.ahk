@@ -9,11 +9,13 @@ class Object
 		else if (c = 1)
 		{
 			this.size := params[1]
-			this.hBitmap := this.CreateDIBSection(this.width, this.height)
+			this.hBitmap := this.CreateDIBSection(this.size.width, this.size.height)
 			this.hdc := this.CreateCompatibleDC()
 			this.hgdiObj := this.SelectObject(this.hdc, this.hBitmap)
 			this.pGraphics := this.GraphicsFromHDC(this.hdc)
+			;MsgBox, % this.pGraphics
 			this.SetSmoothingMode(this.pGraphics, 4)
+			;MsgBox, % hBitmap "`n" hdc "`n" hgdiObj "`n" pGraphics
 		}
 		else
 			throw "Incorrect number of parameters for Object.New()"
@@ -109,9 +111,18 @@ class Object
 		return DllCall("gdiplus\GdipDeleteGraphics", "uptr", pGraphics)
 	}
 	
+	/*
 	GraphicsFromHDC(hdc)
 	{
-		DllCall("gdiplus\GdipCreateFromHDC", "uptr", hdc, "uptr*", pGraphics)
+		E := DllCall("gdiplus\GdipCreateFromHDC", "uptr", hdc, "uptr*", pGraphics)
+		MsgBox, % E
+		return pGraphics
+	}
+	*/
+	
+	GraphicsFromHDC(hdc)
+	{
+		DllCall("gdiplus\GdipCreateFromHDC", A_PtrSize ? "UPtr" : "UInt", hdc, A_PtrSize ? "UPtr*" : "UInt*", pGraphics)
 		return pGraphics
 	}
 	
@@ -351,6 +362,7 @@ class Object
 		c := params.MaxIndex()
 		if (c = 3)
 		{
+			;MsgBox, % this.pGraphics "`n" params[1].Pointer "`n" params[2].X "`n" params[2].Y "`n" params[3].Width "`n" params[3].Height
 			E := this._FillEllipse(this.pGraphics, params[1].Pointer, params[2].X, params[2].Y, params[3].Width, params[3].Height)
 		}
 		else if (c = 6)
