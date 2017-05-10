@@ -850,7 +850,7 @@ class Gdip
 		
 		WriteText(content, options=0)
 		{
-			defaults := { font: "Arial", size: 16, style: "Bold", noWrap: false, brush: 0, horizontalAlign: "left", verticalAlign: "middle", rendering: 4, left: 0, top: 0, width: 0, height: 0  }
+			defaults := { font: "Arial", size: 16, style: ["Bold"], noWrap: false, brush: 0, horizontalAlign: "left", verticalAlign: "middle", rendering: 4, left: 0, top: 0, width: 0, height: 0  }
 			styles := { "Regular": 0, "Bold": 1, "Italic": 2, "BoldItalic": 3, "Underline": 4, "Strikeout": 8 }
 			horizontalAlignments := { "left": 0, "center": 1, "right": 2 }
 			verticalAlignments := { "top": 0, "middle" : 0, "bottom": 0 }
@@ -860,10 +860,15 @@ class Gdip
 			{
 				params[k] := (options.HasKey(k)) ? options[k] : defaults[k]
 			}
-			if (!styles.HasKey(params.style))
-				throw "Bad style for Object.WriteText() - " params.style
-				
-			params.style := styles[params.style]
+			
+			style := 0
+			loop % params.style.MaxIndex()
+			{
+				if (!styles.HasKey(params.style[A_Index]))
+					throw "Bad style for Object.WriteText() - " params.style[A_Index]
+				style |= styles[params.style[A_Index]]
+			}
+	
 			params.formatStyle := (params.noWrap) ? 0x4000 | 0x1000 : 0x4000
 			
 			if (params.brush.__Class != "Gdip.Brush")
@@ -875,12 +880,11 @@ class Gdip
 			
 			if (!verticalAlignments.HasKey(params.verticalAlign))
 				throw "Bad alignment for Object.WriteText() - " params.verticalAlign
-			;params.verticalAlign := verticalAlignments[params.verticalAlign]
 			
 			params.rendering := ((params.rendering >= 0) && (params.rendering <= 5)) ? params.rendering : 4
 	
 			hFamily := this.FontFamilyCreate(params.font)
-			hFont := this.FontCreate(hFamily, params.size, params.style)
+			hFont := this.FontCreate(hFamily, params.size, style)
 			hFormat := this.StringFormatCreate(params.formatStyle)
 			
 			VarSetCapacity(RC, 16)
@@ -916,7 +920,7 @@ class Gdip
 		
 		FontFamilyCreate(font)
 		{
-			DllCall("gdiplus\GdipCreateFontFamilyFromName", "uptr", A_IsUnicode ? &font : &wFont, "uint", 0, "uptr*", hFamily)
+			DllCall("gdiplus\GdipCreateFontFamilyFromName", "uptr", &font, "uint", 0, "uptr*", hFamily)
 			return hFamily
 		}
 		
@@ -1113,6 +1117,7 @@ class Gdip
 		}
 		
 		;brush, point, size, r
+		;brush, x, y, w, h, r
 		;pGraphics, brush, x, y, w, h, r
 		FillRoundedRectangle(params*)
 		{
@@ -1120,6 +1125,10 @@ class Gdip
 			if (c = 4)
 			{
 				E := this._FillRoundedRectangle(this.pGraphics, params[1].Pointer, params[2].X, params[2].Y, params[3].Width, params[3].Height, params[4])
+			}
+			else if (c = 6)
+			{
+				E := this._FillRoundedRectangle(this.pGraphics, params[1].Pointer, params[2], params[3], params[4], params[5], params[6])
 			}
 			else if (c = 7)
 			{
@@ -1201,44 +1210,6 @@ class Gdip
 			this.DrawPath(pGraphics, pPen, path1)
 			this.DeletePath(path1)
 			return r
-		}
-		
-		DrawShape(shape)
-		{
-			radius := shape.borderRadius
-			p1 := new Gdip.Point(shape.left, shape.top)
-			s1 := new Gdip.Size(shape.width, shape.height)
-			pen1 := shape.pen
-			pWidth := pen1.width
-			;MsgBox, % shape.selector.id "`n"
-			;MsgBox, % shape.selector.id "`n" shape.left "`n" shape.top "`n" shape.width "`n" shape.height "`n" pWidth "`n" radius
-			if (radius)
-			{
-				E1 := this.DrawRoundedRectangle(pen1, p1, s1, radius)
-				if (radius <= pWidth / 2)
-				{
-					E2 := this.FillRectangle(shape.brush, new Gdip.Point(p1, pWidth, pWidth), new Gdip.Size(s1.width - pWidth * 2, s1.height - pWidth * 2))
-				}
-				else
-				{
-					E2 := this.FillRoundedRectangle(shape.brush, new Gdip.Point(p1, pWidth, pWidth), new Gdip.Size(s1.width - pWidth * 2, s1.height - pWidth * 2), radius - pWidth / 2)
-				}
-				E := E1 | E2
-			}
-			else
-			{
-				E1 := this.DrawRectangle(pen1, p1, s1)
-				E2 := this.FillRectangle(shape.brush, new Gdip.Point(p1, pWidth, pWidth), new Gdip.Size(s1.width - pWidth * 2, s1.height - pWidth * 2))
-				E := E1 | E2
-			}
-			
-			;MsgBox, % shape.content
-			if (shape.content != "")
-			{
-				;MsgBox, % shape.content "`n" shape.textBrush.pointer
-				this.WriteText(shape.content, { brush: shape.textBrush, left: shape.left, top: shape.top, width: shape.width, height: shape.height, horizontalAlign: shape.textAlign, verticalAlign: shape.verticalAlign, size: shape.fontSize })
-			}
-			return E
 		}
 		
 		;1
@@ -1454,7 +1425,6 @@ class Gdip
 		
 		Clear()
 		{
-			this.shapes := []
 			return this._GraphicsClear(this.pGraphics)
 		}
 		
