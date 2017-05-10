@@ -12,15 +12,15 @@ function OnBuildPlugin(callback) {
 module.exports = {
 	entry: "./index.js",
 	output: {
-		path: path.join(__dirname, 'build'),
+		path: path.join(__dirname, 'dist'),
 		filename: "index.bundle.js"
 	},
     plugins: [
 		new ExtractTextPlugin("Gdip2.ahk"),
 		new OnBuildPlugin(function() {
-			var build = path.join(__dirname, 'build', 'index.bundle.js');
-			if (fs.existsSync(build)) {
-				fs.unlinkSync(build);
+			var bundlePath = path.join(__dirname, 'dist', 'index.bundle.js');
+			if (fs.existsSync(bundlePath)) {
+				fs.unlinkSync(bundlePath);
 			}
 		})		
     ],
