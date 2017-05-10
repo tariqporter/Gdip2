@@ -10,11 +10,9 @@ class Pen
 		{
 			ARGB := params[1]
 			width := params[2]
-			;MsgBox, % ARGB "`n" width
 		}
 		else if (c = 4)
 		{
-			;MsgBox, % params[1] "`n" params[2] "`n" params[3] "`n" params[4]
 			ARGB := (255 << 24) | (params[1] << 16) | (params[2] << 8) | params[3]
 			width := params[4]
 		}

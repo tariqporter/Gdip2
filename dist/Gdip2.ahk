@@ -106,11 +106,9 @@ class Gdip
 			{
 				ARGB := params[1]
 				width := params[2]
-				;MsgBox, % ARGB "`n" width
 			}
 			else if (c = 4)
 			{
-				;MsgBox, % params[1] "`n" params[2] "`n" params[3] "`n" params[4]
 				ARGB := (255 << 24) | (params[1] << 16) | (params[2] << 8) | params[3]
 				width := params[4]
 			}
@@ -995,13 +993,13 @@ class Gdip
 		}
 		
 		;pen, point, size
+		;pen, x, y, w, h
 		;pGraphics, pen, x, y, w, h
 		DrawRectangle(params*)
 		{
 			c := params.MaxIndex()
 			if (c = 3)
 			{
-				;MsgBox, % this.pGraphics "`n" params[1].Pointer "`n" params[2].X "`n" params[2].Y "`n" params[3].Width "`n" params[3].Height "`n" params[1].width
 				pen1 := params[1]
 				point1 := params[2]
 				size1 := params[3]
@@ -1009,6 +1007,15 @@ class Gdip
 				y := point1.y + pen1.width / 2
 				w := size1.width - pen1.width
 				h := size1.height - pen1.width
+				E := this._DrawRectangle(this.pGraphics, pen1.Pointer, x, y, w, h)
+			}
+			else if (c = 5)
+			{
+				pen1 := params[1]
+				x := params[2] + pen1.width / 2
+				y := params[3] + pen1.width / 2
+				w := params[4] - pen1.width
+				h := params[5] - pen1.width
 				E := this._DrawRectangle(this.pGraphics, pen1.Pointer, x, y, w, h)
 			}
 			else if (c = 6)
@@ -1027,6 +1034,7 @@ class Gdip
 		}
 		
 		;pen, point, size
+		;pen, x, y, w, h
 		;pGraphics, pen, x, y, w, h
 		DrawEllipse(params*)
 		{
@@ -1034,6 +1042,10 @@ class Gdip
 			if (c = 3)
 			{
 				E := this._DrawEllipse(this.pGraphics, params[1].pointer, params[2].x, params[2].y, params[3].width, params[3].height)
+			}
+			else if (c = 5)
+			{
+				E := this._DrawEllipse(this.pGraphics, params[1].pointer, params[2], params[3], params[4], params[5])
 			}
 			else if (c = 6)
 			{
