@@ -730,9 +730,8 @@ class Gdip
 				this.hdc := this.CreateCompatibleDC()
 				this.hgdiObj := this.SelectObject(this.hdc, this.hBitmap)
 				this.pGraphics := this.GraphicsFromHDC(this.hdc)
-				;MsgBox, % this.pGraphics
 				this.SetSmoothingMode(this.pGraphics, 4)
-				;MsgBox, % hBitmap "`n" hdc "`n" hgdiObj "`n" pGraphics
+				this.SetInterpolationMode(this.pGraphics, 7)
 			}
 			else
 				throw "Incorrect number of parameters for Object.New()"
@@ -828,15 +827,6 @@ class Gdip
 			return DllCall("gdiplus\GdipDeleteGraphics", "uptr", pGraphics)
 		}
 		
-		/*
-		GraphicsFromHDC(hdc)
-		{
-			E := DllCall("gdiplus\GdipCreateFromHDC", "uptr", hdc, "uptr*", pGraphics)
-			MsgBox, % E
-			return pGraphics
-		}
-		*/
-		
 		GraphicsFromHDC(hdc)
 		{
 			DllCall("gdiplus\GdipCreateFromHDC", A_PtrSize ? "UPtr" : "UInt", hdc, A_PtrSize ? "UPtr*" : "UInt*", pGraphics)
@@ -851,6 +841,11 @@ class Gdip
 		SetSmoothingMode(pGraphics, smoothingMode)
 		{
 			return DllCall("gdiplus\GdipSetSmoothingMode", "uptr", pGraphics, "int", smoothingMode)
+		}
+		
+		SetInterpolationMode(pGraphics, InterpolationMode)
+		{
+		   return DllCall("gdiplus\GdipSetInterpolationMode", "uptr", pGraphics, "int", InterpolationMode)
 		}
 		
 		WriteText(content, options=0)
@@ -1265,8 +1260,6 @@ class Gdip
 		DrawImage(params*)
 		{
 			c := params.MaxIndex()
-			;Tooltip, % c
-			;bitmap
 			if (c = 1)
 			{
 				bitmap := params[1]
@@ -1290,13 +1283,7 @@ class Gdip
 				if (params[1].__Class = "Gdip.Bitmap")
 				{
 					bitmap := params[1]
-					;MsgBox, % bitmap.ImageAttributes
-					;imageAttr := this.SetImageAttributesColorMatrix([[-1,0,0,0,0],[0,-1,0,0,0],[0,0,-1,0,0],[0,0,0,1,0],[1,1,1,0,1]])
-					;MsgBox, % bitmap.ImageAttributes
-					;if (params[3].Height != 13)
-					;	Tooltip, % params[3].Height
 					E := this._DrawImage(this.pGraphics, bitmap.Pointer, params[2].X, params[2].Y, params[3].Width, params[3].Height, 0, 0, bitmap.Width, bitmap.Height, bitmap.ImageAttr)
-					;this.DisposeImageAttributes(imageAttr)
 				}
 				else
 				{
@@ -1321,7 +1308,6 @@ class Gdip
 		
 		_DrawImage(pGraphics, pBitmap, dx, dy, dw, dh, sx, sy, sw, sh, imageAttr=0)
 		{
-			;MsGBox, % imageAttr
 			E := DllCall("gdiplus\GdipDrawImageRectRect", "uptr", pGraphics, "uptr", pBitmap
 						, "float", dx, "float", dy, "float", dw, "float", dh
 						, "float", sx, "float", sy, "float", sw, "float", sh
