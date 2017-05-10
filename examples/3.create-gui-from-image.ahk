@@ -23,7 +23,7 @@ win1 := new gdip1.Window(bitmap1.size)
 ; The 3rd paramter is a size object we want to draw our image
 ; A size object can be instantiated with an existing size object as its first paramter, and < 1 as second. The width and height will be multiplied
 ; by this 2nd value and a new size object returned
-win1.obj.DrawImage(bitmap1, new gdip1.Point(0, 0), new gdip.Size(bitmap1.size, 0.5))
+win1.obj.DrawImage(bitmap1, new gdip1.Point(0, 0), new gdip1.Size(bitmap1.size, 0.5))
 
 ; Update the window with its current position
 win1.Update()
