@@ -60,12 +60,6 @@ class Gdip
 	
 	#Include Size.ahk
 	
-	#Include ShapeCollection.ahk
-	
-	#Include Shape.ahk
-	
-	#Include StyleSheet.ahk
-	
 	#Include Zip.ahk
 	
 	#Include Bitmap.ahk
