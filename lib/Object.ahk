@@ -331,14 +331,18 @@ class Object
 	}
 	
 	;brush, point, size
+	;brush, x, y, w, h
 	;pGraphics, brush, x, y, w, h
 	FillRectangle(params*)
 	{
 		c := params.MaxIndex()
 		if (c = 3)
 		{
-			;MsgBox, % this.pGraphics, params[1].Pointer, params[2].X, params[2].Y, params[3].Width, params[3].Height
 			E := this._FillRectangle(this.pGraphics, params[1].Pointer, params[2].x, params[2].y, params[3].width, params[3].height)
+		}
+		else if (c = 5)
+		{
+			E := this._FillRectangle(this.pGraphics, params[1].Pointer, params[2], params[3], params[4], params[5])
 		}
 		else if (c = 6)
 		{
@@ -351,19 +355,22 @@ class Object
 	
 	_FillRectangle(pGraphics, pBrush, x, y, w, h)
 	{
-		;MsgBox, % pGraphics "`n" pBrush "`n" x "`n" y "`n" w "`n" h
 		return DllCall("gdiplus\GdipFillRectangle", "uptr", pGraphics, "uptr", pBrush, "float", x, "float", y, "float", w, "float", h)
 	}
 	
 	;brush, point, size
+	;brush, x, y, w, h
 	;pGraphics, brush, x, y, w, h
 	FillEllipse(params*)
 	{
 		c := params.MaxIndex()
 		if (c = 3)
 		{
-			;MsgBox, % this.pGraphics "`n" params[1].Pointer "`n" params[2].X "`n" params[2].Y "`n" params[3].Width "`n" params[3].Height
 			E := this._FillEllipse(this.pGraphics, params[1].Pointer, params[2].X, params[2].Y, params[3].Width, params[3].Height)
+		}
+		else if (c = 5)
+		{
+			E := this._FillEllipse(this.pGraphics, params[1].Pointer, params[2], params[3], params[4], params[5])
 		}
 		else if (c = 6)
 		{
