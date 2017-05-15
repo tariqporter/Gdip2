@@ -27,8 +27,8 @@ Random, foreColor, -2147483648, 2147483647
 Random, hatchStyle, 0, 53
 Random, elipseWidth, 1, 200
 Random, elipseHeight, 1, 200
-Random, elipseXPos, % waLeft, % waWidth - RandElipseWidth
-Random, elipseYPos, % waTop, % waHeight - RandElipseHeight
+Random, elipseXPos, % waLeft, % waWidth - elipseWidth
+Random, elipseYPos, % waTop, % waHeight - elipseHeight
 
 ; Create a solid brush using 2 Color objects
 ; Random only allows -2147483648 to 2147483647, but ARGB is 0xFFFFFFFF, so we must add 2147483647 to make sure it is non-negative
