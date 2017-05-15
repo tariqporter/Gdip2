@@ -52,7 +52,7 @@ class Gdip
 		return bitmap1
 	}
 	
-	class Brush
+	class Color
 	{
 		;ARGB
 		;R, G, B
@@ -62,19 +62,70 @@ class Gdip
 			c := params.MaxIndex()
 			if (c = 1)
 			{
-				ARGB := params[1]
+				this.ARGB := params[1]
 			}
 			else if (c = 3)
 			{
-				ARGB := (255 << 24) | (params[1] << 16) | (params[2] << 8) | params[3]
+				this.ARGB := (255 << 24) | (params[1] << 16) | (params[2] << 8) | params[3]
 			}
 			else if (c = 4)
 			{
-				ARGB := (params[1] << 24) | (params[2] << 16) | (params[3] << 8) | params[4]
+				this.ARGB := (params[1] << 24) | (params[2] << 16) | (params[3] << 8) | params[4]
+			}
+			else
+				throw "Incorrect number of parameters for Color.New()"
+			
+			this.A := (0xff000000 & this.ARGB) >> 24
+			this.R := (0x00ff0000 & this.ARGB) >> 16
+			this.G := (0x0000ff00 & this.ARGB) >> 8
+			this.B := 0x000000ff & this.ARGB
+		}
+	}
+	
+	class Brush
+	{
+		;ARGB
+		;Color
+		;R, G, B
+		;Color, Color, hatchStyle
+		;A, R, G, B
+		__New(params*)
+		{
+			c := params.MaxIndex()
+			if (c = 1)
+			{
+				if (params[1].__Class = "Gdip.Color")
+				{
+					this.Color := params[1]
+					this.Pointer := this.CreateSolid(this.Color.ARGB)
+				}
+				else
+				{
+					this.Color := new Gdip.Color(params[1])
+					this.Pointer := this.CreateSolid(this.Color.ARGB)
+				}
+			}
+			else if (c = 3)
+			{
+				if (params[1].__Class = "Gdip.Color")
+				{
+					this.Color := { "Front": params[1], "Back": params[2] }
+					this.HatchStyle := params[3]
+					this.Pointer := this.CreateHatch(this.Color.Front.ARGB, this.Color.Back.ARGB, this.HatchStyle)
+				}
+				else
+				{
+					this.Color := new Gdip.Color((255 << 24) | (params[1] << 16) | (params[2] << 8) | params[3])
+					this.Pointer := this.CreateSolid(this.Color.ARGB)
+				}
+			}
+			else if (c = 4)
+			{
+				this.Color := new Gdip.Color((params[1] << 24) | (params[2] << 16) | (params[3] << 8) | params[4])
+				this.Pointer := this.CreateSolid(this.Color.ARGB)
 			}
 			else
 				throw "Incorrect number of parameters for Brush.New()"
-			this.Pointer := this.CreateSolid(ARGB)
 		}
 		
 		__Delete()
@@ -90,6 +141,12 @@ class Gdip
 		CreateSolid(ARGB)
 		{
 			DllCall("gdiplus\GdipCreateSolidFill", "uint", ARGB, "uptr*", pBrush)
+			return pBrush
+		}
+		
+		CreateHatch(ARGBFront, ARGBBack, hatchStyle=0)
+		{
+			DllCall("gdiplus\GdipCreateHatchBrush", "int", hatchStyle, "uint", ARGBfront, "uint", ARGBback, "uptr*", pBrush)
 			return pBrush
 		}
 	}
@@ -1142,7 +1199,6 @@ class Gdip
 		_FillRoundedRectangle(pGraphics, pBrush, x, y, w, h, r)
 		{
 			r := (w <= h) ? (r < w // 2) ? r : w // 2 : (r < h // 2) ? r : h // 2
-			;MsgBox, % "fill " r
 			path1 := this.CreatePath(0)
 			this.AddPathRectangle(path1, x+r, y, w-(2*r), r)
 			this.AddPathRectangle(path1, x+r, y+h-r, w-(2*r), r)

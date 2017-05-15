@@ -52,6 +52,8 @@ class Gdip
 		return bitmap1
 	}
 	
+	#Include Color.ahk
+	
 	#Include Brush.ahk
 	
 	#Include Pen.ahk

@@ -425,7 +425,6 @@ class Object
 	_FillRoundedRectangle(pGraphics, pBrush, x, y, w, h, r)
 	{
 		r := (w <= h) ? (r < w // 2) ? r : w // 2 : (r < h // 2) ? r : h // 2
-		;MsgBox, % "fill " r
 		path1 := this.CreatePath(0)
 		this.AddPathRectangle(path1, x+r, y, w-(2*r), r)
 		this.AddPathRectangle(path1, x+r, y+h-r, w-(2*r), r)
