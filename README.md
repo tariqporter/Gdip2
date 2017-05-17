@@ -22,7 +22,7 @@ npm install
 and then run webpack to build to `dist` folder
 
 ```bash
-webpack -w
+npm run webpack -w
 ```
 
 `-w` option will watch all included `.ahk` files for any change based upon the use of `#Include`, and automatically rebuild to the `dist` folder
