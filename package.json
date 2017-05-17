@@ -1,6 +1,6 @@
 {
   "name": "gdip2",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "GDI+ library for Autohotkey supporting Objects",
   "main": "index.js",
   "scripts": {

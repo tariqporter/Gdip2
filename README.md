@@ -22,9 +22,9 @@ npm install
 and then run webpack to build to `dist` folder
 
 ```bash
-npm run webpack -w
+npm run webpack
 ```
 
-`-w` option will watch all included `.ahk` files for any change based upon the use of `#Include`, and automatically rebuild to the `dist` folder
+This will run webpack with the `-w` option (as specified in `package.json`), which will watch all included `.ahk` files for any change based upon the use of `#Include`, and automatically rebuild to the `dist` folder
 
 The Gdip2 library uses [webpack ahk-loader](https://github.com/tariqporter/ahk-loader) to watch and build files
