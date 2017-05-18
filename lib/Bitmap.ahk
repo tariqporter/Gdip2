@@ -1,26 +1,38 @@
-class Bitmap
+class Bitmap extends Gdip.Drawing
 {
+	;size
 	;width, height
 	;width, height, format
 	__New(params*)
 	{
 		c := params.MaxIndex()
+		this._pointer := 0
 		if (!c)
 		{
+			
+		}
+		else if (c = 1)
+		{
+			this._pointer := this.CreateBitmap(params[1].width, params[1].height)
 		}
 		else if (c = 2)
 		{
-			this.Pointer := this.CreateBitmap(params[1], params[2])
+			this._pointer := this.CreateBitmap(params[1], params[2])
 		}
 		else if (c = 3)
 		{
-			this.Pointer := this.CreateBitmap(params[1], params[2], params[3])
+			this._pointer := this.CreateBitmap(params[1], params[2], params[3])
 		}
 		else
 			throw "Incorrect number of parameters for Bitmap.New()"
-		width := this.GetImageWidth(this.Pointer)
-		height := this.GetImageHeight(this.Pointer)
-		this.size := new Gdip.Size(this.width, this.height)
+
+		if (this._pointer != 0)
+		{
+			width := this.GetImageWidth(this.Pointer)
+			height := this.GetImageHeight(this.Pointer)
+			this.size := new Gdip.Size(width, height)
+			this.obj := new Gdip.Object(this)
+		}
 	}
 
 	Pointer[]
@@ -30,9 +42,10 @@ class Bitmap
 		}
 		set {
 			this._pointer := value
-			width := this.GetImageWidth(this.Pointer)
-			height := this.GetImageHeight(this.Pointer)
+			width := this.GetImageWidth(this._pointer)
+			height := this.GetImageHeight(this._pointer)
 			this.size := new Gdip.Size(width, height)
+			this.obj := new Gdip.Object(this)
 		}
 	}
 	
@@ -57,8 +70,8 @@ class Bitmap
 	
 	Dispose()
 	{
-		this.DisposeImage(this.Pointer)
-		this.Pointer := 0
+		this.DisposeImage(this._pointer)
+		this._pointer := 0
 	}
 	
 	DisposeImage(pBitmap)
@@ -223,7 +236,7 @@ class Bitmap
 		if !(nCount && nSize)
 			return -2
 			
-		Loop, %nCount%
+		Loop, % nCount
 		{
 			idx := 104*(A_Index-1)
 			sString := StrGet(NumGet(ci, idx+56), "UTF-16")
@@ -303,9 +316,9 @@ class Bitmap
 		
 		if (dispose)
 		{
-			this.DisposeImage(this.Pointer)
+			this.DisposeImage(this._pointer)
 			this.DeleteGraphics(pGraphics)
-			this.Pointer := pBitmap
+			this._pointer := pBitmap
 			this.size := size
 			return this
 		}

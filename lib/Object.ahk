@@ -1,5 +1,8 @@
 class Object
 {
+	;size
+	;bitmap
+	;width, height
 	__New(params*)
 	{
 		c := params.MaxIndex()
@@ -8,16 +11,36 @@ class Object
 		}
 		else if (c = 1)
 		{
-			this.size := params[1]
+			if (params[1].__Class = "Gdip.Size")
+			{
+				this.size := params[1]
+				hasGraphics := false
+			}
+			else
+			{
+				bitmap1 := params[1]
+				this.size := bitmap1.size
+				this.pGraphics := bitmap1.GraphicsFromImage(bitmap1.Pointer)
+				hasGraphics := true
+			}
+		}
+		else if (c = 2)
+		{
+			this.size := new Gdip.Size(params[1], params[2])
+			hasGraphics := false
+		}
+		else
+			throw "Incorrect number of parameters for Object.New()"
+		
+		if (!hasGraphics)
+		{
 			this.hBitmap := this.CreateDIBSection(this.size.width, this.size.height)
 			this.hdc := this.CreateCompatibleDC()
 			this.hgdiObj := this.SelectObject(this.hdc, this.hBitmap)
 			this.pGraphics := this.GraphicsFromHDC(this.hdc)
-			this.SetSmoothingMode(this.pGraphics, 4)
-			this.SetInterpolationMode(this.pGraphics, 7)
 		}
-		else
-			throw "Incorrect number of parameters for Object.New()"
+		this.SetSmoothingMode(this.pGraphics, 4)
+		this.SetInterpolationMode(this.pGraphics, 7)
 	}
 	
 	width[]
@@ -138,62 +161,63 @@ class Object
 		horizontalAlignments := { "left": 0, "center": 1, "right": 2 }
 		verticalAlignments := { "top": 0, "middle" : 0, "bottom": 0 }
 
-		params := {}
+		options2 := {}
 		for k, v in defaults
 		{
-			params[k] := (options.HasKey(k)) ? options[k] : defaults[k]
+			options2[k] := (options.HasKey(k)) ? options[k] : defaults[k]
 		}
+		options := options2
 		
 		style := 0
-		loop % params.style.MaxIndex()
+		loop % options.style.MaxIndex()
 		{
-			if (!styles.HasKey(params.style[A_Index]))
-				throw "Bad style for Object.WriteText() - " params.style[A_Index]
-			style |= styles[params.style[A_Index]]
+			if (!styles.HasKey(options.style[A_Index]))
+				throw "Bad style for Object.WriteText() - " options.style[A_Index]
+			style |= styles[options.style[A_Index]]
 		}
 
-		params.formatStyle := (params.noWrap) ? 0x4000 | 0x1000 : 0x4000
+		options.formatStyle := (options.noWrap) ? 0x4000 | 0x1000 : 0x4000
 		
-		if (params.brush.__Class != "Gdip.Brush")
-			throw "Bad brush for Object.WriteText() - " params.brush
+		if (options.brush.__Class != "Gdip.Brush")
+			throw "Bad brush for Object.WriteText() - " options.brush
 		
-		if (!horizontalAlignments.HasKey(params.horizontalAlign))
-			throw "Bad alignment for Object.WriteText() - " params.horizontalAlign
-		params.horizontalAlign := horizontalAlignments[params.horizontalAlign]
+		if (!horizontalAlignments.HasKey(options.horizontalAlign))
+			throw "Bad alignment for Object.WriteText() - " options.horizontalAlign
+		options.horizontalAlign := horizontalAlignments[options.horizontalAlign]
 		
-		if (!verticalAlignments.HasKey(params.verticalAlign))
-			throw "Bad alignment for Object.WriteText() - " params.verticalAlign
+		if (!verticalAlignments.HasKey(options.verticalAlign))
+			throw "Bad alignment for Object.WriteText() - " options.verticalAlign
 		
-		params.rendering := ((params.rendering >= 0) && (params.rendering <= 5)) ? params.rendering : 4
+		options.rendering := ((options.rendering >= 0) && (options.rendering <= 5)) ? options.rendering : 4
 
-		hFamily := this.FontFamilyCreate(params.font)
-		hFont := this.FontCreate(hFamily, params.size, style)
-		hFormat := this.StringFormatCreate(params.formatStyle)
+		hFamily := this.FontFamilyCreate(options.font)
+		hFont := this.FontCreate(hFamily, options.size, style)
+		hFormat := this.StringFormatCreate(options.formatStyle)
 		
 		VarSetCapacity(RC, 16)
-		NumPut(params.left, RC, 0, "float"), NumPut(params.top, RC, 4, "float")
-		NumPut(params.width, RC, 8, "float"), NumPut(params.height, RC, 12, "float")
+		NumPut(options.left, RC, 0, "float"), NumPut(options.top, RC, 4, "float")
+		NumPut(options.width, RC, 8, "float"), NumPut(options.height, RC, 12, "float")
 		
-		this.SetStringFormatAlign(hFormat, params.horizontalAlign)
-		this.SetTextRenderingHint(this.pGraphics, params.rendering)
+		this.SetStringFormatAlign(hFormat, options.horizontalAlign)
+		this.SetTextRenderingHint(this.pGraphics, options.rendering)
 		
 		measure := this.MeasureString(this.pGraphics, content, hFont, hFormat, RC)
 		
-		if (params.verticalAlign = "top")
+		if (options.verticalAlign = "top")
 		{
 		}
-		else if (params.verticalAlign = "middle")
+		else if (options.verticalAlign = "middle")
 		{
-			top := params.top + (params.height - measure.height) / 2
+			top := options.top + (options.height - measure.height) / 2
 			NumPut(top, RC, 4, "float")
 		}
-		else if (params.verticalAlign = "bottom")
+		else if (options.verticalAlign = "bottom")
 		{
-			top := params.bottom - measure.height
+			top := options.bottom - measure.height
 			NumPut(top, RC, 4, "float")
 		}
 		
-		E := this.DrawString(this.pGraphics, content, hFont, hFormat, params.brush.pointer, RC)
+		E := this.DrawString(this.pGraphics, content, hFont, hFormat, options.brush.pointer, RC)
 		
 		this.DeleteStringFormat(hFormat)   
 		this.DeleteFont(hFont)
@@ -311,7 +335,6 @@ class Object
 
 	_DrawRectangle(pGraphics, pPen, x, y, w, h)
 	{
-		;MsgBox, % x "`n" y "`n" w "`n" h
 		return DllCall("gdiplus\GdipDrawRectangle", "uptr", pGraphics, "uptr", pPen, "float", x, "float", y, "float", w, "float", h)
 	}
 	
@@ -387,7 +410,7 @@ class Object
 		}
 		else if (c = 6)
 		{
-			E := this._FillEllipse(params[1], params[2], params[3], params[4], params[5], params[6])
+			E := this._FillEllipse(params[1], params[2].pointer, params[3], params[4], params[5], params[6])
 		}
 		else
 			throw "Incorrect number of parameters for Object.FillEllipse()"
@@ -399,6 +422,34 @@ class Object
 		return DllCall("gdiplus\GdipFillEllipse", "uptr", pGraphics, "uptr", pBrush, "float", x, "float", y, "float", w, "float", h)
 	}
 	
+	;brush, point, size, startAngle, sweepAngle
+	;brush, x, y, w, h, startAngle, sweepAngle
+	;pGraphics, brush, x, y, w, h, startAngle, sweepAngle
+	FillPie(params*)
+	{
+		c := params.MaxIndex()
+		if (c = 5)
+		{
+			E := this._FillPie(this.pGraphics, params[1].pointer, params[2].X, params[2].Y, params[3].Width, params[3].Height, params[4], params[5])
+		}
+		else if (c = 7)
+		{
+			E := this._FillPie(this.pGraphics, params[1].pointer, params[2], params[3], params[4], params[5], params[6], params[7])
+		}
+		else if (c = 8)
+		{
+			E := this._FillPie(params[1], params[2].pointer, params[3], params[4], params[5], params[6], params[7], params[8])
+		}
+		else
+			throw "Incorrect number of parameters for Object.FillPie()"
+		return E
+	}
+	
+	_FillPie(pGraphics, pBrush, x, y, w, h, startAngle, sweepAngle)
+	{
+		return DllCall("gdiplus\GdipFillPie", "uptr", pGraphics, "uptr", pBrush, "float", x, "float", y, "float", w, "float", h, "float", startAngle, "float", sweepAngle)
+	}
+	
 	;brush, point, size, r
 	;brush, x, y, w, h, r
 	;pGraphics, brush, x, y, w, h, r
@@ -407,15 +458,15 @@ class Object
 		c := params.MaxIndex()
 		if (c = 4)
 		{
-			E := this._FillRoundedRectangle(this.pGraphics, params[1].Pointer, params[2].X, params[2].Y, params[3].Width, params[3].Height, params[4])
+			E := this._FillRoundedRectangle(this.pGraphics, params[1].pointer, params[2].X, params[2].Y, params[3].Width, params[3].Height, params[4])
 		}
 		else if (c = 6)
 		{
-			E := this._FillRoundedRectangle(this.pGraphics, params[1].Pointer, params[2], params[3], params[4], params[5], params[6])
+			E := this._FillRoundedRectangle(this.pGraphics, params[1].pointer, params[2], params[3], params[4], params[5], params[6])
 		}
 		else if (c = 7)
 		{
-			E := this._FillRoundedRectangle(params[1], params[2].Pointer, params[3], params[4], params[5], params[6], params[7])
+			E := this._FillRoundedRectangle(params[1], params[2].pointer, params[3], params[4], params[5], params[6], params[7])
 		}
 		else
 			throw "Incorrect number of parameters for Object.FillRoundedRectangle()"
@@ -440,6 +491,34 @@ class Object
 		return r
 	}
 	
+	;pen, point, point
+	;pen, x1, y1, x2, y2
+	;pGraphics, pen, x1, y1, x2, y2
+	DrawLine(params*)
+	{
+		c := params.MaxIndex()
+		if (c = 3)
+		{
+			E := this._DrawLine(this.pGraphics, params[1].pointer, params[2].X, params[2].Y, params[3].X, params[3].Y)
+		}
+		if (c = 5)
+		{
+			E := this._DrawLine(this.pGraphics, params[1].pointer, params[2], params[3], params[4], params[5])
+		}
+		else if (c = 6)
+		{
+			E := this._DrawLine(params[1], params[2].pointer, params[3], params[4], params[5], params[6])
+		}
+		else
+			throw "Incorrect number of parameters for Object.DrawLine()"
+		return E
+	}
+	
+	_DrawLine(pGraphics, pPen, x1, y1, x2, y2)
+	{
+		return DllCall("gdiplus\GdipDrawLine", "uptr", pGraphics, "uptr", pPen, "float", x1, "float", y1, "float", x2, "float", y2)
+	}
+	
 	;pen, point, size, r, penWidth
 	;pGraphics, pen, x, y, w, h, r, penWidth
 	DrawRoundedRectangle(params*)
@@ -448,7 +527,6 @@ class Object
 		if (c = 4)
 		{
 			pen1 := params[1]
-			;MsGBox, % pen1.Width
 			E := this._DrawRoundedRectangle(this.pGraphics, pen1.Pointer, params[2].x, params[2].y, params[3].width, params[3].height, params[4], pen1.width)
 		}
 		else if (c = 7)
@@ -587,7 +665,6 @@ class Object
 	
 	DisposeImageAttributes(imageAttr)
 	{
-		;MsgBox, here 99
 		return DllCall("gdiplus\GdipDisposeImageAttributes", "uptr", imageAttr)
 	}
 	

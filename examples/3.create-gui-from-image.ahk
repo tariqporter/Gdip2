@@ -7,7 +7,7 @@
 gdip1 := new Gdip()
 
 ; Get a bitmap from the image
-bitmap1 := gdip1.BitmapFromFile("background.png")
+bitmap1 := Gdip.BitmapFromFile("background.png")
 
 ; Check to ensure we actually got a bitmap from the file, in case the file was corrupt or some other error occured
 if !bitmap1.Pointer
@@ -16,14 +16,17 @@ if !bitmap1.Pointer
 	ExitApp
 }
 
+; A size object can be instantiated with an existing size object as its first paramter, and < 1 as second. The width and height will be multiplied
+; by this 2nd value and a new size object returned
+size1 := new Gdip.Size(bitmap1.size, 0.5)
+
 ; Create a window with the size of our bitmap
-win1 := new gdip1.Window(bitmap1.size)
+win1 := new Gdip.Window(size1)
+;MsgBox, % win1.width
 
 ; Draw our bitmap into our window, at x = 0, y = 0
 ; The 3rd paramter is a size object we want to draw our image
-; A size object can be instantiated with an existing size object as its first paramter, and < 1 as second. The width and height will be multiplied
-; by this 2nd value and a new size object returned
-win1.obj.DrawImage(bitmap1, new gdip1.Point(0, 0), new gdip1.Size(bitmap1.size, 0.5))
+win1.DrawImage(bitmap1, new Gdip.Point(0, 0), size1)
 
 ; Update the window with its current position
 win1.Update()

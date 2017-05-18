@@ -58,6 +58,8 @@ class Gdip
 	
 	#Include Pen.ahk
 	
+	#Include Drawing.ahk
+	
 	#Include Window.ahk
 	
 	#Include Point.ahk

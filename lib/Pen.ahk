@@ -39,15 +39,6 @@ class Pen
 	
 	CreatePen(ARGB, w)
 	{
-		;MsgBox, % ARGB "`n" w
-		
-		;A := (0xff000000 & ARGB) >> 24
-		;R := (0x00ff0000 & ARGB) >> 16
-		;G := (0x0000ff00 & ARGB) >> 8
-		;B := 0x000000ff & ARGB
-		
-		;MsgBox, % A "`n" R "`n" G "`n" B "`n" w
-
 		DllCall("gdiplus\GdipCreatePen1", "UInt", ARGB, "float", w, "int", 2, "uptr*", pPen)
 		return pPen
 	}

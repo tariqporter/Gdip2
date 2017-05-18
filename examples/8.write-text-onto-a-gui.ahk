@@ -14,7 +14,7 @@ win1 := new gdip1.Window(size1)
 brush1 := new gdip1.Brush(170, 0, 0, 0)
 
 ; We can call any draw/fill function with x, y, w, h, or we can use a point object, size object
-win1.obj.FillRoundedRectangle(brush1, new gdip1.Point(0, 0), size1, 20)
+win1.FillRoundedRectangle(brush1, new gdip1.Point(0, 0), size1, 20)
 
 options1 := {}
 options1.brush := new gdip1.Brush(187, 255, 255, 255)
@@ -23,7 +23,7 @@ options1.horizontalAlign := "center"
 options1.width := win1.width
 options1.height := win1.height
 options1.size := 20
-win1.obj.WriteText("Tutorial 8`n`nThank you for trying this example", options1)
+win1.WriteText("Tutorial 8`n`nThank you for trying this example", options1)
 
 ; Update the window with its current position
 win1.Update({ x: (A_ScreenWidth-size1.width)//2, y: (A_ScreenHeight-size1.height)//2 })

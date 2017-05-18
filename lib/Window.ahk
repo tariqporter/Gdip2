@@ -1,4 +1,4 @@
-class Window
+class Window extends Gdip.Drawing
 {
 	__New(params*)
 	{

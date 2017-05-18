@@ -13,8 +13,8 @@ waHeight := waBottom - waTop
 gdip1 := new Gdip()
 
 ; Create a window with width and height of the work area
-size1 := new gdip1.Size(waWidth, waHeight)
-win1 := new gdip1.Window(size1)
+size1 := new Gdip.Size(waWidth, waHeight)
+win1 := new Gdip.Window(size1)
 
 SetTimer, DrawCircle, 200
 return
@@ -35,7 +35,7 @@ Random, elipseYPos, % waTop, % waHeight - elipseHeight
 brush1 := new gdip1.Brush(new gdip1.Color(backColor + 2147483647), new gdip1.Color(foreColor + 2147483647), hatchStyle)
 
 ; We can call any draw/fill function with x, y, w, h, or we can use a point object, size object
-win1.obj.FillEllipse(brush1, elipseXPos, elipseYPos, elipseWidth, elipseHeight)
+win1.FillEllipse(brush1, elipseXPos, elipseYPos, elipseWidth, elipseHeight)
 win1.Update()
 return
 
