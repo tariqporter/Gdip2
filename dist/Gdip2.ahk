@@ -378,7 +378,6 @@ class Gdip
 				}
 				else
 				{
-					
 					this.width := params[1]
 					this.height := params[2]
 				}
