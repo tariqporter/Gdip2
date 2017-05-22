@@ -37,5 +37,5 @@ You just need to run
 npm test
 ```
 
-This will run `ahk-unit ./tests/tests.ahk`
+This will run `ahk-unit ./tests/tests.ahk`.
 Any included file-change will cause a re-run of all tests
