@@ -4,14 +4,15 @@
   "description": "GDI+ library for Autohotkey supporting Objects",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-	"webpack": "webpack -w"
+    "test": "ahk-unit ./tests/tests.ahk",
+    "webpack": "webpack -w"
   },
   "keywords": [],
   "author": "Tariq Porter @tariqporter",
   "license": "MIT",
   "devDependencies": {
     "ahk-loader": "^1.1.7",
+    "ahk-unit": "^1.0.5",
     "extract-text-webpack-plugin": "^2.1.0",
     "webpack": "^2.5.1"
   }
