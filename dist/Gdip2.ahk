@@ -320,7 +320,12 @@ class Gdip
 				return this.size.height
 			}
 		}
-		
+	
+		Clear()
+		{
+			this.obj.Clear()
+		}
+	
 		Update(paramObj=0)
 		{
 			if (paramObj.x != "")

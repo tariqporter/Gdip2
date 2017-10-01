@@ -63,7 +63,12 @@ class Window extends Gdip.Drawing
 			return this.size.height
 		}
 	}
-	
+
+	Clear()
+	{
+		this.obj.Clear()
+	}
+
 	Update(paramObj=0)
 	{
 		if (paramObj.x != "")
